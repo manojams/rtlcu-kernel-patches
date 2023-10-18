@@ -1,0 +1,40 @@
+From 1d8c16e6671cba3565f4ffe7ebeb079ca66de119 Mon Sep 17 00:00:00 2001
+From: Manoj Sai <abbaraju.manojsai@amarulasolutions.com>
+Date: Thu, 7 Jul 2022 16:23:41 +0530
+Subject: [PATCH 3/3] os_dep/osdep_service: renamed the complete_and_exit to
+ kthread_complete_and_exit
+
+renamed the complete_and_exit to kthread_complete_and_exit in latest versions
+https://lore.kernel.org/lkml/20211208202532.16409-8-ebiederm@xmission.com/
+
+Signed-off-by: Manoj Sai <abbaraju.manojsai@amarulasolutions.com>
+Change-Id: Ie120b68da6b61780586b5c88543194735fb20076
+---
+ rtl88x2CU/os_dep/osdep_service.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/rtl88x2CU/os_dep/osdep_service.c b/rtl88x2CU/os_dep/osdep_service.c
+index a49ba32..889b16e 100644
+--- a/rtl88x2CU/os_dep/osdep_service.c
++++ b/rtl88x2CU/os_dep/osdep_service.c
+@@ -1309,7 +1309,11 @@ u32 _rtw_down_sema(_sema *sema)
+ inline void thread_exit(_completion *comp)
+ {
+ #ifdef PLATFORM_LINUX
+-	complete_and_exit(comp, 0);
++	#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 17, 0)
++		complete_and_exit(comp, 0);
++	#else
++		kthread_complete_and_exit(comp,0);
++	#endif
+ #endif
+ 
+ #ifdef PLATFORM_FREEBSD
+@@ -3527,4 +3531,3 @@ int hwaddr_aton_i(const char *txt, u8 *addr)
+ 
+ 	return 0;
+ }
+-
+-- 
+2.25.1
+
